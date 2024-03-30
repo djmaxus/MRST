@@ -63,13 +63,9 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
     % Even steps
     dt_rem = repmat(dt, floor(dt_left/dt), 1);
     % Final ministep if present
-    dt_final = time - sum(dt_init) - sum(dt_rem);
-    % Less than to account for rounding errors leading to a very small
-    % negative time-step.
-    if dt_final <= 0
-        dt_final = [];
-    end
+    dt_final = max(dt_left - sum(dt_rem),0);
+    dt_rem(end) = dt_rem(end) + dt_final;
     % Combined timesteps
-    dT = [dt_init; dt_rem; dt_final];
+    dT = [dt_init; dt_rem];
 end
 
