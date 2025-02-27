@@ -51,7 +51,8 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 
    is_open_pre = listOpenedFiles();
 
-   [dname, fp] = fileparts(prefix);
+   [dname, fp, ext] = fileparts(prefix);
+   fp = [fp,ext];
    if isempty(dname)
       dname = '.';
    end
