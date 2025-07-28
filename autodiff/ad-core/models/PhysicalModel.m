@@ -654,7 +654,7 @@ methods
         convergence = values < tolerances;
     end
 
-    function [values, tolerances, names] = getConvergenceValues(model, problem, n)
+    function [values, tolerances, names] = getConvergenceValues(model, problem, n, resid_trunc,tol_mult)
         if nargin == 2
             n = inf;
         end
@@ -662,6 +662,12 @@ methods
         values = norm(problem, n);
         tolerances = repmat(model.nonlinearTolerance, size(values));
         names = strcat(problem.equationNames, ' (', problem.types, ')');
+
+        if ~isempty(resid_trunc)
+            error = norm(resid_trunc, n);
+            values = repmat(error, size(values));
+            tolerances = tolerances * tol_mult;
+        end
     end
 
 
@@ -721,8 +727,21 @@ methods
         problem.iterationNo = iteration;
         problem.drivingForces = drivingForces;
         t_assembly = toc(timer);
-
-        [convergence, values, resnames] = model.checkConvergence(problem);
+        
+        resid_rom = [];
+        tol_mult = 1;
+        for i_vararg = 1:numel(varargin)
+            if strcmp(varargin{i_vararg},'report_prev')
+                report_prev = varargin{i_vararg+1};
+                if isempty(report_prev)
+                    break;
+                end
+                resid_rom = varargin{i_vararg+1}.LinearSolver.resid_rom;
+                tol_mult = varargin{i_vararg+1}.LinearSolver.tol_mult;
+                break;
+            end
+        end
+        [convergence, values, resnames] = model.checkConvergence(problem,Inf,resid_rom,tol_mult); % FIXME
 
         % Minimum number of iterations can be prescribed, i.e., we
         % always want at least one set of updates regardless of
@@ -769,7 +788,7 @@ methods
         end
         modelConverged = all(convergence);
         if outOfIterations && nonlinsolver.acceptanceFactor ~= 1
-            [values, tol, resnames] = model.getConvergenceValues(problem);
+            [values, tol, resnames] = model.getConvergenceValues(problem,Inf,linearReport.resid_trunc);
             modelConverged = all(values < nonlinsolver.acceptanceFactor*tol);
         end
         isConverged = (modelConverged && doneMinIts) || model.stepFunctionIsLinear;
