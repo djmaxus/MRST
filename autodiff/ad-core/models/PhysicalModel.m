@@ -126,7 +126,7 @@ methods
         % Get equations from AD states
         assert(false, 'Not implemented in base class');
     end
-    
+
     function [problem, state] = getEquations(model, state0, state, dt, forces, varargin)
         % Get the set of linearized model equations with possible Jacobians
         %
@@ -281,7 +281,7 @@ methods
         %
         %   Second input may be the forces struct argument. This function
         %   should NOT require forces arg to run, however.
-        %   
+        %
         %   Third input is a flag indicating if we should check that the
         %   model operators are consistent with the grid/rock. If the
         %   consistency check fails, the method will issue a warning.
@@ -333,7 +333,7 @@ methods
             end
         end
     end
-    
+
     function model = setupStateFunctionGroupings(model, setDefaults) %#ok
         % Initialize state functions and corresponding groups
         %
@@ -658,16 +658,15 @@ methods
         if nargin == 2
             n = inf;
         end
-
-        values = norm(problem, n);
-        tolerances = repmat(model.nonlinearTolerance, size(values));
-        names = strcat(problem.equationNames, ' (', problem.types, ')');
-
-        if ~isempty(resid_trunc)
+        if isempty(resid_trunc)
+            values = norm(problem, n);
+            tolerances = repmat(model.nonlinearTolerance, size(values));
+        else
             error = norm(resid_trunc, n);
-            values = repmat(error, size(values));
-            tolerances = tolerances * tol_mult;
+            values = repmat(error, size(problem.equations));
+            tolerances = repmat(model.nonlinearTolerance*tol_mult, size(problem.equations));
         end
+        names = strcat(problem.equationNames, ' (', problem.types, ')');
     end
 
 
@@ -727,7 +726,7 @@ methods
         problem.iterationNo = iteration;
         problem.drivingForces = drivingForces;
         t_assembly = toc(timer);
-        
+
         resid_rom = [];
         tol_mult = 1;
         for i_vararg = 1:numel(varargin)
@@ -896,7 +895,7 @@ methods
         % SEE ALSO:
         %   `computeGradientAdjointAD`
         %
-        
+
         validforces = model.getValidDrivingForces();
         dt_steps = schedule.step.val;
 
@@ -946,11 +945,11 @@ methods
                 end
             end
             problem_p = model.getAdjointEquations(current, after, dt_next, forces_p,...
-                                'iteration', inf, 'reverseMode', true);                
+                                'iteration', inf, 'reverseMode', true);
         else
             problem_p = [];
         end
-        
+
         [lambda, lambdaVec, rep] = solver.solveAdjointProblem(problem_p,...
                                                               problem                             , ...
                                                               lambda                              , ...
@@ -960,7 +959,7 @@ methods
         report = struct();
         report.Types = problem.types;
         report.LinearSolverReport = rep;
-        
+
     end
 
 
@@ -1068,15 +1067,15 @@ methods
         end
         model.stateFunctionEvaluationMode = mode;
     end
-    
+
     function mode = getStateFunctionEvaluationMode(model)
         mode = model.stateFunctionEvaluationMode;
     end
-    
+
     function [model, graph] = setupStateFunctionGraph(model, varargin)
         % Set up the state function dependency graph to allow for
         % single-pass evaluation
-        opt = struct('filter', {{}}, ... 
+        opt = struct('filter', {{}}, ...
                      'filter_origin', []);
         ne = numel(varargin);
         if mod(ne, 2) == 0
@@ -1113,9 +1112,9 @@ methods
                         error('No such origin filter %s', org);
                 end
             end
-            
+
             [groups, names, origin] = deal(groups(keep), names(keep), origin(keep)); %#ok
-            
+
             graph = getStateFunctionGroupingDependencyGraph(groups{:});
             to = topological_order(sparse(graph.C));
             isState = graph.GroupIndex == find(strcmpi(graph.GroupNames, 'state'));
@@ -1145,7 +1144,7 @@ methods
         graph.EvaluationOrder(skip) = [];
         model.stateFunctionGraph = graph;
     end
-    
+
     function state = evaluateAllStateFunctions(model, state)
         % Evaluate ALL state functions, provided that the graph has been
         % initialized via setupStateFunctionGraph.
@@ -1169,7 +1168,7 @@ methods
             end
         end
     end
-    
+
     function [groupings, names, models] = getStateFunctionGroupings(model)
         groupings = {}; % Groups
         names = {};     % Name in model
@@ -1543,7 +1542,7 @@ methods
             '" (state.', fn, '): Expected ', sn, ' to have ', num2str(n_el), ...
             ' entries but state had ', num2str(n_actual), ' instead.'])
     end
-    
+
     function problem = setupLinearizedProblem(model, eqs, types, names, primaryVars, state, dt)
         problem = LinearizedProblem(eqs, types, names, primaryVars, state, dt);
     end
