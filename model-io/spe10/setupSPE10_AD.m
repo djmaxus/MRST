@@ -1,4 +1,4 @@
-function [state, model, schedule]  = setupSPE10_AD(varargin)
+function [state, model, schedule]  = setupSPE10_AD(G,varargin)
 %Undocumented Utility Function
 
 %{
@@ -62,6 +62,8 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 
     
     rock = getSPE10rock(opt.I, opt.J, opt.layers);
+    rock.poro = rock.poro(G.cells.indexMap);
+    rock.perm = rock.perm(G.cells.indexMap,:);
 
     % Compute pore volume fraction of the full model
     volFrac = sum(rock.poro)/1.9141e+05;
@@ -85,7 +87,7 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
         rock.perm = rock.perm(:, 1);
     end
 
-    G = cartGrid(cartDims, physDims);
+    % G = cartGrid(cartDims, physDims);
     try
         mrstModule add libgeometry
         G = mcomputeGeometry(G);
