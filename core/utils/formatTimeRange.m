@@ -26,8 +26,8 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
     end
     s = '';
 
-    timesys = {year, day, hour, second, second/1000};
-    timen = {'Year', 'Day', 'Hour', 'Second', 'Millisecond'};
+    timesys = {year, day, hour, minute, second, second/1000};
+    timen = {'Year', 'Day', 'Hour','Minute','Second', 'Millisecond'};
     added = false;
     count = 0;
     for i = 1:numel(timesys)
