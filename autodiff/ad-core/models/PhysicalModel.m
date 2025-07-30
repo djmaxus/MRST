@@ -658,15 +658,14 @@ methods
         if nargin == 2
             n = inf;
         end
-        if isempty(resid_trunc)
-            values = norm(problem, n);
-            tolerances = repmat(model.nonlinearTolerance, size(values));
-        else
-            error = norm(resid_trunc, n);
-            values = repmat(error, size(problem.equations));
-            tolerances = repmat(model.nonlinearTolerance*tol_mult, size(problem.equations));
-        end
+        values = norm(problem, n);
+        tolerances = repmat(model.nonlinearTolerance, size(values));
         names = strcat(problem.equationNames, ' (', problem.types, ')');
+        if ~isempty(resid_trunc)
+            error = norm(resid_trunc, n);
+            values(:) = error;
+            tolerances(:) = model.nonlinearTolerance*tol_mult;
+        end
     end
 
 
