@@ -468,11 +468,11 @@ methods
                 [v_wells, tol_wells, names_wells, is_well] = ...
                     model.FacilityModel.getFacilityConvergenceValues(problem);
             end
-            % if any(is_well)
-            %     tolerances(is_well) = tol_wells;
-            %     values(is_well) = v_wells;
-            %     names(is_well) = names_wells;
-            % end
+            if any(is_well)
+                tolerances(is_well) = tol_wells;
+                values(is_well) = v_wells;
+                names(is_well) = names_wells;
+            end
         end
     end
 
