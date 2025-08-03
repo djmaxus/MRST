@@ -654,7 +654,7 @@ methods
         convergence = values < tolerances;
     end
 
-    function [values, tolerances, names] = getConvergenceValues(model, problem, n, resid_trunc,tol_mult)
+    function [values, tolerances, names] = getConvergenceValues(model, problem, n, resid_trunc)
         if nargin == 2
             n = inf;
         end
@@ -664,7 +664,6 @@ methods
         if ~isempty(resid_trunc)
             error = norm(resid_trunc, n);
             values(:) = error;
-            tolerances(:) = model.nonlinearTolerance*tol_mult;
         end
     end
 
@@ -727,7 +726,6 @@ methods
         t_assembly = toc(timer);
 
         resid_rom = [];
-        tol_mult = 1;
         for i_vararg = 1:numel(varargin)
             if strcmp(varargin{i_vararg},'report_prev')
                 report_prev = varargin{i_vararg+1};
@@ -735,11 +733,10 @@ methods
                     break;
                 end
                 resid_rom = varargin{i_vararg+1}.LinearSolver.resid_rom;
-                tol_mult = varargin{i_vararg+1}.LinearSolver.tol_mult;
                 break;
             end
         end
-        [convergence, values, resnames] = model.checkConvergence(problem,Inf,resid_rom,tol_mult); % FIXME
+        [convergence, values, resnames] = model.checkConvergence(problem,Inf,resid_rom); % FIXME
 
         % Minimum number of iterations can be prescribed, i.e., we
         % always want at least one set of updates regardless of
