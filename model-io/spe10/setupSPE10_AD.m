@@ -1,4 +1,4 @@
-function [state, model, schedule]  = setupSPE10_AD(varargin)
+function [state, model, schedule,dt]  = setupSPE10_AD(varargin)
 %Undocumented Utility Function
 
 %{
