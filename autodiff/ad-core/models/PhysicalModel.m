@@ -732,7 +732,9 @@ methods
                 if isempty(report_prev)
                     break;
                 end
-                resid_rom = varargin{i_vararg+1}.LinearSolver.resid_rom;
+                if (exist('varargin{i_vararg+1}.LinearSolver.resid_rom','var'))
+                    resid_rom = varargin{i_vararg+1}.LinearSolver.resid_rom;
+                end
                 break;
             end
         end
