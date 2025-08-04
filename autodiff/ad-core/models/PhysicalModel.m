@@ -663,6 +663,7 @@ methods
         names = strcat(problem.equationNames, ' (', problem.types, ')');
         if ~isempty(resid_trunc)
             error = norm(resid_trunc, n);
+            disp(error);
             values(:) = error;
         end
     end
