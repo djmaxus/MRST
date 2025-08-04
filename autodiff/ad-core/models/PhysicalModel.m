@@ -107,7 +107,7 @@ methods
     end
 
 
-    function state = initStateAD(model, state, vars, names, origin)
+    function state = initStateAD(model, state, vars, names, origin) % NOTE: djmaxus where ROM-I encoding could happen
         % Initialize AD state from double state
         for i = 1:numel(names)
             state = model.setProp(state, names{i}, vars{i});
