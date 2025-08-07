@@ -1,4 +1,4 @@
-function [state, model, schedule,dt]  = setupSPE10_AD(varargin)
+function [state, model, schedule, opt]  = setupSPE10_AD(varargin)
 %Undocumented Utility Function
 
 %{
@@ -99,7 +99,7 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
     state = initResSol(G, pRef, [srw, 1-srw]);
     
     % Wells
-    makeProd = @(W, name, I, J) verticalWell(W, G, rock, I, J, opt.layers,...
+    makeProd = @(W, name, I, J) verticalWell(W, G, rock, I, J, [],...
         'Name', name, 'radius', 5*inch, 'sign', -1, 'Type', 'bhp',...
         'Val', 4000*psia, 'comp_i', [.5, .5]);
     I = G.cartDims(1);
@@ -109,7 +109,7 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
     W = makeProd(W, 'P2', I, 1);
     W = makeProd(W, 'P3', I, J);
     W = makeProd(W, 'P4', 1, J);
-    W = verticalWell(W, G, rock, ceil(I/2), ceil(J/2), opt.layers, 'Name', 'I1', 'radius', 5*inch, ...
+    W = verticalWell(W, G, rock, ceil(I/2), ceil(J/2), [], 'Name', 'I1', 'radius', 5*inch, ...
         'Type', 'rate', 'Val', volFrac*5000*stb/day, 'comp_i', [1, 0], 'Sign', 1);
     
     dt = rampupTimesteps(opt.T, opt.dt, opt.rampup);
