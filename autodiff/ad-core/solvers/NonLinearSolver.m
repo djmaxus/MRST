@@ -38,7 +38,7 @@ classdef NonLinearSolver < handle
         % enabled.
         useRelaxation = false % Boolean indicating if Newton increments should be relaxed.
         relaxationParameter = 1 % Relaxation parameter between 0 and 1.
-        % This is modified dynamically if useRelaxation is on, and should 
+        % This is modified dynamically if useRelaxation is on, and should
         % in general not be modified unless you know what you are doing.
         % Either 'dampen', 'sor' or 'none'
         % For dampen, where w = relaxationParameter.
@@ -51,7 +51,7 @@ classdef NonLinearSolver < handle
         minRelaxation = 0.5 % Lowest possible relaxation factor
         maxRelaxation = 1.0 % Largest possible relaxation factor
         oscillationThreshold = 1.0 % Fraction of non-converged values that must oscillate/stagnate before relaxation is activated
-        
+
         useLinesearch = false % True to enable line-search in residual
         alwaysUseStabilization = false % Debug option to always use line search or relaxation
         linesearchReductionFactor = 1/2 % Reduction factor for each step in LS
@@ -67,7 +67,7 @@ classdef NonLinearSolver < handle
         continueOnFailure = false % Continue even if failure is reported by the model. Results are most likely not useful. Intended for nested nonlinear solvers.
         convergenceIssues = false;
     end
-    
+
     properties (Access=private)
         % Internal bookkeeping.
         previousIncrement
@@ -104,7 +104,7 @@ classdef NonLinearSolver < handle
             %   'W'       - Wells for the timestep. (struct)
             %   'bc'      - Boundary conditions for the problem (struct).
             %   'src'     - Source terms for the timestep (struct).
-            %   
+            %
             %   NOTE: Wells, boundary conditions and source terms are the
             %         standard types of external forces in MRST. However,
             %         the model input determines which of these are
@@ -139,7 +139,9 @@ classdef NonLinearSolver < handle
 
             [opt, forcesArg] = merge_options(opt, varargin{:});
             state = opt.initialGuess;
-            % state = weighted_init_guess(state0,opt.initialGuess,0.99);
+            % alpha = rand(1,"double");
+            % state = weighted_init_guess(state0,opt.initialGuess,alpha);
+            % state = add_random_noise(state);
             % Merge in forces as varargin
             drivingForces = merge_options(drivingForces, forcesArg{:});
             % Prepare report-step
@@ -202,7 +204,7 @@ classdef NonLinearSolver < handle
                 end
                 if solver.verbose && dt < dT
                     fprintf('%sSolving ministep : %s (%1.2f %% of control step, control step currently %1.2f %% complete)\n',...
-                            solver.getId(), formatTimeRange(dt), dt / dT * 100, t_local / dT * 100)
+                        solver.getId(), formatTimeRange(dt), dt / dT * 100, t_local / dT * 100)
                 end
                 % Increment the time
                 state.time = t_start + t_local + dt;
@@ -249,7 +251,7 @@ classdef NonLinearSolver < handle
                     % Model did not converge, we are in some kind of
                     % trouble.
                     stopNow = dt <= dtMin || (failure && solver.continueOnFailure);
-                    
+
                     if ~(stopNow && solver.continueOnFailure)
                         if acceptCount == 0
                             % We are still at the beginning, and we must honor
@@ -271,7 +273,7 @@ classdef NonLinearSolver < handle
                         % went wrong.
                         msg_fail = reports{end}.NonlinearReport{end}.FailureMsg;
                         msg = [msg, 'Model step resulted in failure state. Reason: ', ...
-                               msg_fail]; %#ok<AGROW>
+                            msg_fail]; %#ok<AGROW>
                     else
                         msg = [msg, 'Maximum number of substeps stopped timestep reduction']; %#ok<AGROW>
                     end
@@ -296,13 +298,13 @@ classdef NonLinearSolver < handle
                         if solver.verbose >= 0
                             if failure
                                 fprintf(['%sSolver failure after %d iterations',...
-                                        ' for timestep of length %s. Cutting timestep.\n', ...
-                                        'Failure reason: %s\nCutting timestep.\n'],...
-                                        solver.getId(), its - 1, formatTimeRange(dt), msg_fail);
+                                    ' for timestep of length %s. Cutting timestep.\n', ...
+                                    'Failure reason: %s\nCutting timestep.\n'],...
+                                    solver.getId(), its - 1, formatTimeRange(dt), msg_fail);
                             else
                                 fprintf(['%sSolver did not converge in %d iterations',...
-                                        ' for timestep of length %s. Cutting timestep.\n'],...
-                                        solver.getId(), its - 1, formatTimeRange(dt));
+                                    ' for timestep of length %s. Cutting timestep.\n'],...
+                                    solver.getId(), its - 1, formatTimeRange(dt));
                             end
                         end
                         % Flag as time-step failure. The time-step selector
@@ -310,7 +312,7 @@ classdef NonLinearSolver < handle
                         % significant reduction.
                         timestepFailure = true;
                         cuttingCount = cuttingCount + 1;
-                   end
+                    end
                     isFinalMinistep = false;
                 end
                 % Custom function determines that we have stopped.
@@ -332,18 +334,18 @@ classdef NonLinearSolver < handle
             end
             time = toc(timer);
             dispif(solver.verbose > 0, ...
-                   [solver.getId(), ...
-                    'Solved timestep with %d accepted ministep%s', ...
-                    ' (Iteration%s: %d rejected, %d total, %s each)\n'], ...
-                   acceptCount, pl_mini, pl_it, stepCount - acceptCount, ...
-                   itCount, formatTimeRange(time/itCount, 2));
+                [solver.getId(), ...
+                'Solved timestep with %d accepted ministep%s', ...
+                ' (Iteration%s: %d rejected, %d total, %s each)\n'], ...
+                acceptCount, pl_mini, pl_it, stepCount - acceptCount, ...
+                itCount, formatTimeRange(time/itCount, 2));
             % Truncate reports from step functions
             reports = reports(~cellfun(@isempty, reports));
             report = struct('Iterations',           itCount,    ...
-                            'Converged',            converged,  ...
-                            'EarlyStop',            early_done, ...
-                            'WallTime',             time,       ...
-                            'MinistepCuttingCount', cuttingCount);
+                'Converged',            converged,  ...
+                'EarlyStop',            early_done, ...
+                'WallTime',             time,       ...
+                'MinistepCuttingCount', cuttingCount);
             % Add seperately because struct constructor interprets cell
             % arrays as repeated structs.
             report.StepReports = reports;
@@ -400,7 +402,7 @@ classdef NonLinearSolver < handle
                     end
                 end
                 prev_best = stepReport.Residuals;
-                
+
                 if solver.useRelaxation || solver.useLinesearch || solver.alwaysUseStabilization
                     % Store residual history during nonlinear loop to detect
                     % stagnation or oscillations in residuals.
@@ -452,9 +454,9 @@ classdef NonLinearSolver < handle
                 reports{end}.FinalUpdate = r;
             end
             report = struct('NonlinearReport', {reports}, ...
-                            'Converged',       converged, ...
-                            'Timestep',        dt, ...
-                            'Iterations',      its);
+                'Converged',       converged, ...
+                'Timestep',        dt, ...
+                'Iterations',      its);
         end
 
         function [dx, report] = stabilizeNewtonIncrements(solver, model, problem, dx) %#ok<INUSL>
@@ -465,42 +467,42 @@ classdef NonLinearSolver < handle
             report = struct('relaxationParameter', w);
             if w < 1
                 switch(lower(solver.relaxationType))
-                  case 'dampen'
-                    for i = 1:numel(dx)
-                        dx{i} = dx{i}*w;
-                    end
-                  case 'sor'
-                    if isempty(dx_prev)
-                        return
-                    end
-                    for i = 1:numel(dx)
-                        dx{i} = dx{i}*w + (1-w)*dx_prev{i};
-                    end
-                  case 'none'
+                    case 'dampen'
+                        for i = 1:numel(dx)
+                            dx{i} = dx{i}*w;
+                        end
+                    case 'sor'
+                        if isempty(dx_prev)
+                            return
+                        end
+                        for i = 1:numel(dx)
+                            dx{i} = dx{i}*w + (1-w)*dx_prev{i};
+                        end
+                    case 'none'
 
-                  otherwise
-                    error('Unknown relaxationType: Valid options are ''dampen'', ''none'' or ''sor''');
+                    otherwise
+                        error('Unknown relaxationType: Valid options are ''dampen'', ''none'' or ''sor''');
                 end
             end
             solver.previousIncrement = dx;
-            
+
         end
 
         function [stateNext, updateReport, lineReport] = applyLinesearch(solver, model, state0, state, problem0, dx, drivingForces, varargin)
             assert(solver.linesearchReductionFactor < 1 & solver.linesearchReductionFactor > 0, ...
-                    'NonLinearSolver.linesearchReductionFactor must be less than unity and positive.');
+                'NonLinearSolver.linesearchReductionFactor must be less than unity and positive.');
             iteration = problem0.iterationNo;
             dt = problem0.dt;
             % Function handle for assembling system equations
             assemble = @(state)  model.getEquations(state0, state, dt, drivingForces, ...
-                       'ResOnly', true, ...
-                       'iteration', iteration, ...
-                       varargin{:});
+                'ResOnly', true, ...
+                'iteration', iteration, ...
+                varargin{:});
             % Function for computing updated values with a given delta
             update = @(dx) model.updateState(state, problem0, dx, drivingForces);
             factor = solver.linesearchDecreaseFactor;
             converged = false;
-            
+
             % Check convergence of previous iteration. This is the value to
             % beat, i.e. we want a reduction in the residual with respect
             % to this value.
@@ -515,7 +517,7 @@ classdef NonLinearSolver < handle
             ok = val0 <= 1;
             activeNames = getActiveNames(solver, names);
             vBest = linesearchApplyUpdate(solver, val0, ok, activeNames);
-            
+
             for its = 1:solver.linesearchMaxIterations
                 [stateNext, updateReport] = update(dx);
                 problem = assemble(stateNext);
@@ -533,14 +535,14 @@ classdef NonLinearSolver < handle
                 dx = cellfun(@(x) x.*solver.linesearchReductionFactor, dx, 'UniformOutput', false);
             end
             lineReport = struct('Iterations', its, ...
-                                'Converged', converged);
+                'Converged', converged);
             dispif(solver.verbose && ~converged, 'Linesearch was unable to reduce residual.\n');
         end
 
         function isOscillating = checkForOscillations(solver, res, index) %#ok
-        % Check if residuals are oscillating. They are oscillating of
-        % the ratio of forward and backwards differences for a specific
-        % residual is negative.
+            % Check if residuals are oscillating. They are oscillating of
+            % the ratio of forward and backwards differences for a specific
+            % residual is negative.
             if index < 3
                 isOscillating = false(1, size(res, 2));
                 return
@@ -554,9 +556,9 @@ classdef NonLinearSolver < handle
         end
 
         function isStagnated = checkForStagnation(solver, res, index)
-        % Check if residuals have stagnated. Residuals are flagged as
-        % stagnating if the relative change is smaller than
-        % the tolerance (in absolute value).
+            % Check if residuals have stagnated. Residuals are flagged as
+            % stagnating if the relative change is smaller than
+            % the tolerance (in absolute value).
             if index < 2
                 isStagnated = false(1, size(res, 2));
                 return
@@ -574,7 +576,7 @@ classdef NonLinearSolver < handle
                 str = [solver.identifier, ': '];
             end
         end
-        
+
         function v = linesearchApplyUpdate(solver, v, ok, active)
             v = v./solver.linesearchResidualScaling;
             v = v(active);
@@ -620,11 +622,22 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 %}
 
 function w_guess = weighted_init_guess(state0,guess,alpha)
-    w_guess.pressure = state0.pressure .* (1-alpha) + ...
-        guess.pressure .* alpha;
-    w_guess.s = state0.s .* (1-alpha) + ...
-        guess.s .* alpha;
-    w_guess.wellSol = state0.wellSol;
-    w_guess.rs = state0.rs;
-    w_guess.rv = state0.rv;
+w_guess.pressure = state0.pressure .* (1-alpha) + ...
+    guess.pressure .* alpha;
+w_guess.s = state0.s .* (1-alpha) + ...
+    guess.s .* alpha;
+w_guess.s(:,2) = 1 - w_guess.s(:,1);
+w_guess.wellSol = state0.wellSol;
+w_guess.rs = state0.rs;
+w_guess.rv = state0.rv;
+end
+
+function state = add_random_noise(state)
+noise_level = 1e-4;
+Nu = size(state.pressure,1);
+state.pressure = state.pressure .* (1 + noise_level*randn(Nu,1));
+state.s(:,1) = state.s(:,1) .* (1 + noise_level*randn(Nu,1));
+state.s(:,2)= 1 - state.s(:,1);
+% Nu = size(state.flux,1);
+% state.flux = state.flux .* (1 + noise_level*randn(Nu,2));
 end
