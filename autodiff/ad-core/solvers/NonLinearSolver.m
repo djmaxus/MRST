@@ -139,7 +139,7 @@ classdef NonLinearSolver < handle
 
             [opt, forcesArg] = merge_options(opt, varargin{:});
             state = opt.initialGuess;
-            state = weighted_init_guess(state0,opt.initialGuess,0.4);
+            state = weighted_init_guess(state0,opt.initialGuess,0.8);
             % Merge in forces as varargin
             drivingForces = merge_options(drivingForces, forcesArg{:});
             % Prepare report-step
