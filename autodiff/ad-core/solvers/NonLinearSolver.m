@@ -139,7 +139,7 @@ classdef NonLinearSolver < handle
 
             [opt, forcesArg] = merge_options(opt, varargin{:});
             state = opt.initialGuess;
-            state = weighted_init_guess(state0,opt.initialGuess,0.8);
+            state = weighted_init_guess(state0,opt.initialGuess,0.5);
             % Merge in forces as varargin
             drivingForces = merge_options(drivingForces, forcesArg{:});
             % Prepare report-step
@@ -620,9 +620,11 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 %}
 
 function w_guess = weighted_init_guess(state0,guess,alpha)
-    w_guess = state0;
     w_guess.pressure = state0.pressure .* (1-alpha) + ...
         guess.pressure .* alpha;
     w_guess.s = state0.s .* (1-alpha) + ...
         guess.s .* alpha;
+    w_guess.wellSol = state0.wellSol;
+    w_guess.rs = state0.rs;
+    w_guess.rv = state0.rv;
 end
