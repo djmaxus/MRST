@@ -647,11 +647,11 @@ state.s(:,2)= 1 - state.s(:,1);
 end
 
 function state = truncate_with(state,encoder_p,encoder_sw)
-    if ~isempty(encoder_p)
-        [state.pressure,resid_p] = encoder_p.truncate(state.pressure);
-    end
-    if ~isempty(encoder_sw)
-        [state.s(:,1),resid_sw] = encoder_sw.truncate(state.s(:,1));
-        state.s(:,2) = 1 - state.s(:,1);
-    end
+    % if ~isempty(encoder_p)
+    %     [state.pressure,resid_p] = encoder_p.truncate(state.pressure);
+    % end
+    % if ~isempty(encoder_sw)
+    %     [state.s(:,1),resid_sw] = encoder_sw.truncate(state.s(:,1));
+    %     state.s(:,2) = 1 - state.s(:,1);
+    % end
 end
