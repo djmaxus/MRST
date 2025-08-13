@@ -66,6 +66,8 @@ classdef NonLinearSolver < handle
         errorOnFailure = true % If error on failure is not enabled, the solver will return even though it did not converge. May be useful for debugging. Results should not be relied upon if this is enabled. If errorOnFailure is disabled, the solver will continue after a failed timestep, treating it as a simply non-converged result with the maximum number of iterations
         continueOnFailure = false % Continue even if failure is reported by the model. Results are most likely not useful. Intended for nested nonlinear solvers.
         convergenceIssues = false;
+        encoder_p = [];
+        encoder_sw = [];
     end
 
     properties (Access=private)
@@ -368,11 +370,13 @@ classdef NonLinearSolver < handle
             % Prepare model and state for solution of time-step. Note that
             % since we do not return model here, any changes to model are
             % not persistent.
+            state0 = truncate_with(state0,solver.encoder_p,solver.encoder_sw);
             [model, state] = model.prepareTimestep(state, state0, dt, drivingForces);
             storeIntermediateStates = solver.reportLevel > 2;
             for i = 1:(maxIts + 1)
                 % If we are past maximum number of iterations, step function will
                 % just check convergence and return
+                state = truncate_with(state,solver.encoder_p,solver.encoder_sw);
                 [state, stepReport] = ...
                     model.stepFunction(state, state0, dt, drivingForces, ...
                     solver.LinearSolver, solver, ...
@@ -640,4 +644,14 @@ state.s(:,1) = state.s(:,1) .* (1 + noise_level*randn(Nu,1));
 state.s(:,2)= 1 - state.s(:,1);
 % Nu = size(state.flux,1);
 % state.flux = state.flux .* (1 + noise_level*randn(Nu,2));
+end
+
+function state = truncate_with(state,encoder_p,encoder_sw)
+    if ~isempty(encoder_p)
+        [state.pressure,resid_p] = encoder_p.truncate(state.pressure);
+    end
+    if ~isempty(encoder_sw)
+        [state.s(:,1),resid_sw] = encoder_sw.truncate(state.s(:,1));
+        state.s(:,2) = 1 - state.s(:,1);
+    end
 end
