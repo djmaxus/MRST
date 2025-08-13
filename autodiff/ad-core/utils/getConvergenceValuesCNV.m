@@ -113,4 +113,4 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
     tolerances = [repmat(tol_cnv, 1, sum(active)), repmat(tol_mb, 1, sum(active))];
     values = [CNV(active), MB(active)];
     names = [cnv_names(active), mb_names(active)];
-end
+end % NOTE djmaxus
