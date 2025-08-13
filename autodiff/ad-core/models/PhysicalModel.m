@@ -655,13 +655,20 @@ methods
         convergence = values < tolerances;
     end
 
-    function [values, tolerances, names] = getConvergenceValues(model, problem, n, resid_trunc)
+    function [values, tolerances, names] = getConvergenceValues(model, problem, n, varargin)
         if nargin == 2
             n = inf;
         end
         values = norm(problem, n);
         tolerances = repmat(model.nonlinearTolerance, size(values));
         names = strcat(problem.equationNames, ' (', problem.types, ')');
+        if isempty(varargin)
+            return;
+        end
+        if isempty(varargin{1})
+            return;
+        end
+        resid_trunc = varargin{1};
         if ~isempty(resid_trunc)
             error = norm(resid_trunc, n);
             % disp(error);
