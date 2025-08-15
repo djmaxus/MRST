@@ -27,7 +27,9 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
                  'I',       1:60, ...
                  'J',       1:220, ...
                  'make2D',  false, ...
-                 'minporo', 1e-4);
+                 'minporo', 1e-4, ...
+                 'poro', [], ...
+                 'perm', []);
     opt = merge_options(opt, varargin{:});
     
     mrstModule add spe10 ad-props ad-blackoil ad-core
@@ -62,6 +64,14 @@ along with MRST.  If not, see <http://www.gnu.org/licenses/>.
 
     
     rock = getSPE10rock(opt.I, opt.J, opt.layers);
+    if ~isempty(opt.poro)
+        rock.poro(:) = opt.poro;
+    end
+    if ~isempty(opt.perm)
+        rock.perm(:,1) = opt.perm(1);
+        rock.perm(:,2) = opt.perm(2);
+        rock.perm(:,3) = opt.perm(3);
+    end
 
     % Compute pore volume fraction of the full model
     volFrac = sum(rock.poro)/1.9141e+05;
